@@ -1,0 +1,174 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+
+  <h2 class="text-primary fw-bold mb-4"><%= user.department_name %> Head Dashboard</h2>
+
+  <!-- FILTER FORM -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <form method="get" action="/depthead" class="row g-3">
+
+        <div class="col-md-3">
+          <label>Request ID</label>
+          <input type="number" name="request_id" class="form-control" value="<%= filters.request_id %>">
+        </div>
+
+        <div class="col-md-3">
+          <label>Status</label>
+          <select name="status" class="form-select">
+            <option value="">All</option>
+            <option value="PENDING" <%= filters.status === 'PENDING' ? 'selected' : '' %>>Pending</option>
+            <option value="APPROVED" <%= filters.status === 'APPROVED' ? 'selected' : '' %>>Approved</option>
+            <option value="REJECTED" <%= filters.status === 'REJECTED' ? 'selected' : '' %>>Rejected</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Service</label>
+          <select name="service_id" class="form-select">
+            <option value="">All</option>
+            <% services.forEach(s => { %>
+              <option value="<%= s.id %>" <%= filters.service_id == s.id ? 'selected' : '' %>>
+                <%= s.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Date</label>
+          <input type="date" name="date" class="form-control" value="<%= filters.date %>">
+        </div>
+        <div class="col-md-6 d-flex justify-content-start gap-2">
+          <button class="btn btn-primary">Filter</button>
+          <a href="/depthead" class="btn btn-secondary ">Reset</a>
+          <a href="/depthead/download-report" class="btn btn-success ">Download Report</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- REQUEST TABLE -->
+  <div class="card shadow-sm mt-5">
+    <div class="card-body">
+
+      <h4 class="mb-3 fw-bold">Requests of <%= user.department_name %></h4>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Citizen</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>Fee</th>
+              <th>Submitted At</th>
+              <th>Reviewed By</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% requests.forEach(r => { %>
+              <tr>
+
+                <td><%= r.id %></td>
+                <td><%= r.citizen_name %></td>
+                <td><%= r.service_name %></td>
+
+                <td>
+                  <% if (r.status === "APPROVED") { %>
+                    <span class="badge bg-success">Approved</span>
+                  <% } else if (r.status === "PENDING") { %>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  <% } else { %>
+                    <span class="badge bg-danger">Rejected</span>
+                  <% } %>
+                </td>
+
+                <td>
+                  <% if (r.fee_cents) { %>
+                    $ <%= (r.fee_cents / 100).toFixed(2) %>
+                  <% } else { %>
+                    -
+                  <% } %>
+                </td>
+
+                <td>
+                  <%= r.submitted_at ? new Date(r.submitted_at).toLocaleString() : "-" %>
+                </td>
+
+                <td>
+                  <% if (!r.reviewer_name) { %>
+                    <span class="text-muted">Not reviewed</span>
+                  <% } else { %>
+                    <%= r.reviewer_name %>
+                  <% } %>
+                </td>
+
+              </tr>
+            <% }) %>
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STAT BOXES -->
+  <div class="row g-3 mt-5">
+    <h4 class="mb-3">Status Statistics</h4>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-start border-primary border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Total Requests</h6>
+          <h2 class="fw-bold"><%= totalRequests %></h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-start border-success border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Approved</h6>
+          <h2 class="fw-bold text-success"><%= approved %></h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-start border-warning border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Pending</h6>
+          <h2 class="fw-bold text-warning"><%= pending %></h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-start border-danger border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Rejected</h6>
+          <h2 class="fw-bold text-danger"><%= rejected %></h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-start border-info border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Total Fees Collected</h6>
+          <h2 class="fw-bold text-info">$ <%= (feeCollected / 100).toFixed(2) %></h2>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>

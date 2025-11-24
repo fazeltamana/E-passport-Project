@@ -1,0 +1,94 @@
+<%- include('../partials/header') %>
+<style>
+  body {
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Background image with transparency */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/images/image.jpg') no-repeat center center / cover;
+    opacity: 0.7; 
+    z-index: -1; 
+  }
+  .login-bg .card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(3px);
+    border-radius: 12px;
+  }
+</style>
+<div class="login-bg">
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-sm p-4">
+          <h2 class="mb-4 text-center text-primary">Login</h2>
+
+          <% if (error) { %>
+          <div class="alert alert-danger"><%= error %></div>
+          <% } %>
+          <% if (success) { %>
+          <div class="alert alert-success"><%= success %></div>
+          <% } %>
+
+          <form method="post" action="/auth/login">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required
+                  placeholder="Enter your password"
+                />
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+
+          <p class="text-center mt-3">
+            Don't have an account?
+            <a href="/auth/register" class="text-primary">Register</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Toggle password visibility
+  const toggleBtn = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password');
+  toggleBtn.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+  });
+</script>
+
+<%- include('../partials/footer') %>

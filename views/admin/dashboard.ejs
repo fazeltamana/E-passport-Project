@@ -1,0 +1,196 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <h2 class="text-primary mb-4">Admin Dashboard</h2>
+  
+  <div class="d-flex align-items-start gap-3 mb-3">
+    <!-- Add Officer / Dept Head -->
+    <a href="/admin/add-user" class="btn btn-primary">➕ Add Officer / Dept Head</a>
+
+    <!-- Download Report -->
+    <form method="GET" action="/admin/download-report" class="m-0">
+      <button type="submit" class="btn btn-success"> Download Organization Report</button>
+    </form>
+ </div>
+  <!-- Search & Filter Form -->
+  <form method="get" class="row g-2 mb-4 align-items-end">
+    <div class="col-md-3">
+      <input type="text" name="request_id" id="request_id" class="form-control" value="<%= request_id %>" placeholder="Request ID">
+    </div>
+
+    <div class="col-md-2">
+      <select name="status" id="status" class="form-select">
+        <option value="">All</option>
+        <option value="SUBMITTED" <%= status==='SUBMITTED' ? 'selected' : '' %>>Submitted</option>
+        <option value="UNDER_REVIEW" <%= status==='UNDER_REVIEW' ? 'selected' : '' %>>Under Review</option>
+        <option value="APPROVED" <%= status==='APPROVED' ? 'selected' : '' %>>Approved</option>
+        <option value="REJECTED" <%= status==='REJECTED' ? 'selected' : '' %>>Rejected</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <select name="service_id" id="service_id" class="form-select">
+        <option value="">All Services</option>
+        <% services.forEach(s => { %>
+          <option value="<%= s.id %>" <%= selectedService==s.id ? 'selected' : '' %>><%= s.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <input type="date" name="date" id="date" class="form-control" value="<%= date %>">
+    </div>
+
+    <div class="col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Filter</button>
+      <button type="button" id="resetBtn" class="btn btn-secondary">Reset</button>
+    </div>
+  </form>
+
+  <!-- Department Stats Card -->
+  <div class="mb-4">
+    <h4 class="mb-3">Requests by Department</h4>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th>Department</th>
+            <th>Total Requests</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% deptStats.forEach(d => { %>
+          <tr>
+            <td><%= d.name %></td>
+            <td><span class="badge bg-info text-dark"><%= d.total_requests %></span></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Status Boxes Row -->
+  <div class="row g-3 mt-4">
+    <h4 class="mb-3">Status Statistics</h4>
+
+    <!-- Approved -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm border-start border-success border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Approved</h6>
+          <h2 class="fw-bold text-success">
+            <%= statusStats.find(s => s.current_status === 'APPROVED')?.count || 0 %>
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm border-start border-warning border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Pending</h6>
+          <h2 class="fw-bold text-warning">
+            <%= statusStats.find(s => s.current_status === 'SUBMITTED' || s.current_status === 'PENDING')?.count || 0 %>
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Under Review -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm border-start border-info border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Under Review</h6>
+          <h2 class="fw-bold text-info">
+            <%= statusStats.find(s => s.current_status === 'UNDER_REVIEW')?.count || 0 %>
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rejected -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm border-start border-danger border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Rejected</h6>
+          <h2 class="fw-bold text-danger">
+            <%= statusStats.find(s => s.current_status === 'REJECTED')?.count || 0 %>
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Fees Collected Row -->
+  <div class="row g-3 mt-3">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-start border-info border-4">
+        <div class="card-body">
+          <h6 class="text-muted">Total Fees Collected</h6>
+          <h2 class="fw-bold text-info">$<%= totalCollected %></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtered Requests Table (only if a filter applied) -->
+  <% if (request_id || status || selectedService || date) { %>
+  <div class="mb-4">
+    <h4 class="mb-3">Filtered Requests</h4>
+    <% if (requests.length === 0) { %>
+      <p class="text-muted">No requests found for the selected filters.</p>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-primary">
+            <tr>
+              <th>ID</th>
+              <th>Citizen</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% requests.forEach(r => { %>
+            <tr>
+              <td><a href="/admin/request/<%= r.id %>" class="text-decoration-none"><%= r.id %></a></td>
+              <td><%= r.citizen_name %></td>
+              <td><%= r.service_name %></td>
+              <td>
+                <% if(r.current_status === 'SUBMITTED') { %>
+                  <span class="badge bg-warning text-dark"><%= r.current_status %></span>
+                <% } else if(r.current_status === 'APPROVED') { %>
+                  <span class="badge bg-success"><%= r.current_status %></span>
+                <% } else if(r.current_status === 'REJECTED') { %>
+                  <span class="badge bg-danger"><%= r.current_status %></span>
+                <% } else if(r.current_status === 'UNDER_REVIEW') { %>
+                  <span class="badge bg-info text-dark"><%= r.current_status %></span>
+                <% } else { %>
+                  <span class="badge bg-secondary"><%= r.current_status %></span>
+                <% } %>
+              </td>
+              <td><%= new Date(r.submitted_at).toLocaleString() %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+  <% } %>
+</div>
+
+<script>
+  const resetBtn = document.getElementById('resetBtn');
+  resetBtn.addEventListener('click', () => {
+    document.getElementById('request_id').value = '';
+    document.getElementById('status').value = '';
+    document.getElementById('service_id').value = '';
+    document.getElementById('date').value = '';
+    document.querySelector('form').submit();
+  });
+</script>
+
+<%- include('../partials/footer') %>

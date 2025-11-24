@@ -1,0 +1,100 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <h2 class="text-primary fw-bold mb-4"><%= user.department_name %> Requests</h2>
+
+  <!-- Filter Form with Shadow -->
+  <div class="p-3 mb-3 shadow-sm rounded">
+    <form method="get" class="d-flex gap-2 flex-wrap align-items-end mb-3">
+      <!-- Citizen Name -->
+      <div>
+        <input type="text" name="name" class="form-control" value="<%= filters.name || '' %>" placeholder="Enter the citizen name">
+      </div>
+      <!-- Request ID -->
+      <div>
+        <input type="text" name="request_id" class="form-control" value="<%= filters.request_id || '' %>" placeholder="Enter request ID">
+      </div>
+      <!-- Status -->
+      <div>
+        <select name="status" class="form-select">
+          <option value="">All</option>
+          <option value="SUBMITTED" <%= filters.status === 'SUBMITTED' ? 'selected' : '' %>>Submitted</option>
+          <option value="UNDER_REVIEW" <%= filters.status === 'UNDER_REVIEW' ? 'selected' : '' %>>Under Review</option>
+          <option value="APPROVED" <%= filters.status === 'APPROVED' ? 'selected' : '' %>>Approved</option>
+          <option value="REJECTED" <%= filters.status === 'REJECTED' ? 'selected' : '' %>>Rejected</option>
+        </select>
+      </div>
+      <!-- Service -->
+      <div>
+        <select name="service_id" class="form-select">
+          <option value="">All Services</option>
+          <% services.forEach(service => { %>
+            <option value="<%= service.id %>" <%= filters.service_id == service.id ? 'selected' : '' %>><%= service.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <!-- Date -->
+      <div>
+        <input type="date" name="date" class="form-control" value="<%= filters.date || '' %>">
+      </div>
+      <!-- Buttons -->
+      <div class="d-flex gap-2 align-items-center">
+        <button type="submit" class="btn btn-primary mt-2">Filter</button>
+        <a href="/officer" class="btn btn-secondary mt-2">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Requests Table -->
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>ID</th>
+          <th>Citizen</th>
+          <th>Service</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if(requests.length === 0) { %>
+          <tr>
+            <td colspan="6" class="text-center">No requests found</td>
+          </tr>
+        <% } else { %>
+          <% requests.forEach(request => { %>
+            <tr>
+              <td><a href="/officer/request/<%= request.id %>" class="text-decoration-none"><%= request.id %></a></td>
+              <td><%= request.citizen_name %></td>
+              <td><%= request.service_name %></td>
+              <td>
+                <% 
+                  const status = request.status?.toUpperCase(); // normalize
+                %>
+                <% if(status === 'APPROVED') { %>
+                  <span class="badge bg-success"><%= request.status %></span>
+                <% } else if(status === 'SUBMITTED' || status === 'PENDING') { %>
+                  <span class="badge bg-warning text-dark"><%= request.status %></span>
+                <% } else if(status === 'UNDER_REVIEW') { %>
+                  <span class="badge bg-info text-dark"><%= request.status %></span>
+                <% } else if(status === 'REJECTED') { %>
+                  <span class="badge bg-danger"><%= request.status %></span>
+                <% } else { %>
+                  <span class="badge bg-secondary"><%= request.status %></span>
+                <% } %>
+              </td>
+              <td><%= new Date(request.submitted_at).toLocaleString() %></td>
+              <td>
+                <a href="/officer/request/<%= request.id %>" class="btn btn-sm btn-primary">Review</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

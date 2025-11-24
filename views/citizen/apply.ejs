@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <div class="card shadow-sm p-4">
+    <h2 class="card-title text-primary mb-4">Apply for a Service</h2>
+
+    <form method="post" action="/citizen/apply" enctype="multipart/form-data" id="applyForm">
+
+      <!-- Service Selection -->
+      <div class="mb-3">
+        <label for="serviceInput" class="form-label">Service</label>
+        <input list="serviceList" id="serviceInput" class="form-control" placeholder="Type or select a service" required>
+        <input type="hidden" name="service_id" id="serviceId"> <!-- hidden input to store selected service ID -->
+
+        <datalist id="serviceList">
+          <% services.forEach(s => { %>
+            <option data-id="<%= s.id %>" value="<%= s.name %> — <%= s.department_name %> ($<%= s.fee %>)"></option>
+          <% }) %>
+        </datalist>
+      </div>
+
+      <!-- Details -->
+      <div class="mb-3">
+        <label for="details" class="form-label">Details</label>
+        <textarea name="details" id="details" class="form-control" rows="3" placeholder="Provide additional information..."></textarea>
+      </div>
+
+      <!-- Document Upload -->
+      <div class="mb-3">
+        <label for="documents" class="form-label">Documents</label>
+        <input type="file" name="documents" id="documents" multiple class="form-control">
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary w-100">Submit Application</button>
+    </form>
+  </div>
+
+  <a href="/citizen/" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+
+<script>
+  const serviceInput = document.getElementById('serviceInput');
+  const serviceIdInput = document.getElementById('serviceId');
+  const datalist = document.getElementById('serviceList');
+
+  // Map option values to IDs
+  const serviceMap = {};
+  Array.from(datalist.options).forEach(option => {
+    serviceMap[option.value] = option.dataset.id;
+  });
+
+  // Update hidden input whenever user selects or types
+  serviceInput.addEventListener('input', () => {
+    const val = serviceInput.value;
+    serviceIdInput.value = serviceMap[val] || ''; // set service_id or empty if invalid
+  });
+
+  // Optional: prevent form submit if invalid service
+  document.getElementById('applyForm').addEventListener('submit', (e) => {
+    if (!serviceIdInput.value) {
+      e.preventDefault();
+      alert('Please select a valid service from the list.');
+      serviceInput.focus();
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

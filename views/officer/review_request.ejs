@@ -1,0 +1,60 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <!-- Request Details -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="card-title text-primary mb-3">Request #<%= request.id %> — <%= request.service_name %></h2>
+      <p><strong>Citizen:</strong> <%= request.citizen_name %></p>
+      <p>
+        <strong>Status:</strong>
+        <% if(request.current_status === 'SUBMITTED') { %>
+          <span class="badge bg-warning text-dark">Submitted</span>
+        <% } else if(request.current_status === 'UNDER_REVIEW') { %>
+          <span class="badge bg-info text-dark">Under Review</span>
+        <% } else if(request.current_status === 'APPROVED') { %>
+          <span class="badge bg-success text-dark">Approved</span>
+        <% } else if(request.current_status === 'REJECTED') { %>
+          <span class="badge bg-danger text-dark">Rejected</span>
+        <% } else { %>
+          <span class="badge bg-secondary"><%= request.current_status %></span>
+        <% } %>
+      </p>
+      <p><strong>Department:</strong> <%= request.dept_name %></p>
+      <p><strong>Submitted At:</strong> <%= new Date(request.submitted_at).toLocaleString() %></p>
+    </div>
+  </div>
+  <!-- Uploaded Documents -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4 class="card-title mb-3">Documents</h4>
+      <% if(documents.length === 0) { %>
+        <p class="text-muted">No documents uploaded.</p>
+      <% } else { %>
+        <ul class="list-group">
+          <% documents.forEach(d => { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><%= d.filename %></span>
+              <a href="/officer/request/<%= request.id %>/document/<%= encodeURIComponent(d.file_name) %>" class="btn btn-sm btn-primary"
+              >⬇ Download</a>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Approve / Reject Form -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="post" action="/officer/request/<%= request.id %>/action" class="d-flex gap-3">
+        <button name="action" value="approve" class="btn btn-success flex-fill">Approve</button>
+        <button name="action" value="reject" class="btn btn-danger flex-fill">Reject</button>
+      </form>
+    </div>
+  </div>
+
+  <a href="/officer" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<%- include('../partials/footer') %>
