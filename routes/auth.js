@@ -12,6 +12,7 @@ router.get("/login", (req, res) => {
 
   res.render("auth/login", {
     user: req.session.user,
+    officer: req.session.user,
     error: null,
     success,
   });

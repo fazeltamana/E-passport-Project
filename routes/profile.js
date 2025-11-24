@@ -15,9 +15,10 @@ router.get("/", ensureAuthenticated, async (req, res) => {
     const userId = req.session.user.id;
 
     const [userRows] = await db.execute(`
-      SELECT u.*, o.department_id, o.nick_name, ur.role_id, r.name AS role_name
+      SELECT u.*, o.department_id, o.nick_name, ur.role_id, r.name AS role_name, d.name AS department_name,
       FROM users u
       LEFT JOIN officers o ON u.id = o.user_id
+      LEFT JOIN departments d ON o.department_id = d.id
       LEFT JOIN users_roles ur ON u.id = ur.user_id
       LEFT JOIN roles r ON ur.role_id = r.id
       WHERE u.id = ?
