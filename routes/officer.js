@@ -100,7 +100,7 @@ router.get("/request/:id", ensureAuthenticated, ensureRole("OFFICER"), async (re
 
     request.status = request.current_status.charAt(0).toUpperCase() + request.current_status.slice(1).toLowerCase();
 
-    res.render("officer/review_request", { user: req.session.user, request, documents });
+    res.render("officer/review_request", { user: req.session.user, officer: req.session.user, request, documents });
   } catch (err) {
     console.error("Officer review error:", err);
     res.sendStatus(500);

@@ -77,6 +77,7 @@ router.get("/", ensureAuthenticated, ensureRole("ADMIN"), async (req, res) => {
 
     res.render("admin/dashboard", {
       user: req.session.user,
+      officer: req.session.user,
       deptStats: deptStats || [],
       statusStats: statusStats || [],
       totalCollected: totalCollectedResult[0].total_collected || 0,
@@ -99,6 +100,7 @@ router.get("/add-user", ensureAuthenticated, ensureRole("ADMIN"), async (req, re
     const [depts] = await db.execute("SELECT id, name FROM departments ORDER BY name ASC");
     res.render("admin/add_user", { 
       user: req.session.user, 
+      officer: req.session.user,
       depts, 
       success: null, 
       error: null 
@@ -159,6 +161,7 @@ router.post("/add-user", ensureAuthenticated, ensureRole("ADMIN"), async (req, r
 
     res.render("admin/add_user", {
       user: req.session.user,
+      officer: req.session.user,
       depts,
       success: `${role} added successfully including officer info!`,
       error: null
@@ -171,6 +174,7 @@ router.post("/add-user", ensureAuthenticated, ensureRole("ADMIN"), async (req, r
 
     res.render("admin/add_user", {
       user: req.session.user,
+      officer: req.session.user,
       depts,
       success: null,
       error: "Could not add user"

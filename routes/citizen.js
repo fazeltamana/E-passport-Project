@@ -57,6 +57,7 @@ router.get("/", ensureAuthenticated, ensureRole("CITIZEN"), async (req, res) => 
 
     res.render("citizen/dashboard", {
       user: req.session.user,
+      officer: req.session.user,
       requests: requestsRes,
       notifications: notificationsRes,
       search,
@@ -77,7 +78,7 @@ router.get("/apply", ensureAuthenticated, ensureRole("CITIZEN"), async (req, res
       JOIN departments d ON s.department_id = d.id 
       WHERE s.is_active = true
     `);
-    res.render("citizen/apply", { user: req.session.user, services });
+    res.render("citizen/apply", { user: req.session.user, officer: req.session.user, services });
   } catch (err) {
     console.error("GET /citizen/apply error:", err);
     res.status(500).send("Server error");
