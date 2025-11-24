@@ -135,10 +135,15 @@ router.get("/request/:id", ensureAuthenticated, ensureRole("CITIZEN"), async (re
     const uid = req.session.user.id;
 
     const [reqRes] = await db.execute(`
-      SELECT r.*, s.name AS service_name, d.name AS dept_name
+          SELECT r.*, 
+            s.name AS service_name, 
+            d.name AS dept_name,
+            p.amount_cents AS fee_cents,
+            p.status AS payment_status
       FROM requests r
       JOIN services s ON r.service_id = s.id
       JOIN departments d ON s.department_id = d.id
+      LEFT JOIN payments p ON p.request_id = r.id
       WHERE r.id = ? AND r.citizen_id = ?
     `, [rid, uid]);
 
